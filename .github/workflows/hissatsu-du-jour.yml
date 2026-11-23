@@ -1,0 +1,15 @@
+name: Hissatsu du jour
+
+on:
+  schedule:
+    - cron: "0 7 * * *" # 8h heure de Paris (9h en été → mets 6 si tu veux 8h pile l'été)
+  workflow_dispatch:
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/hissatsu_du_jour.py
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
