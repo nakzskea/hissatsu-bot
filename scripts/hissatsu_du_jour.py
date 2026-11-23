@@ -1,34 +1,50 @@
 import json, os, random, sys, urllib.request
 
-TYPES = {"Shoot": "Tir", "Catch": "Arrêt", "Dribble": "Dribble", "Block": "Défense"}
-ELEMENTS = {"Fire": "Feu", "Wind": "Air", "Forest": "Bois", "Mountain": "Terre", "Void": "Néant"}
-COLORS = {"Fire": 0xE74C3C, "Wind": 0x5DADE2, "Forest": 0x58D68D, "Mountain": 0xB9770E, "Void": 0x8E44AD}
-
 URL = "https://raw.githubusercontent.com/nakzskea/hissatsudle/master/public/data/hissatsus.json"
-h = random.choice(json.load(urllib.request.urlopen(URL)))
+CHANNEL_ID = "1574561004254400572"
+COLORS = {"Fire": 0xE74C3C, "Wind": 0x5DADE2, "Forest": 0x58D68D, "Mountain": 0xB9770E, "Void": 0x8E44AD}
+INTROS = [
+    "Yo ! Tu reconnais cette technique, mec ? 🏄",
+    "Hé hé, celle-là elle déchire comme une vague géante ! C'est quoi ? 🌊",
+    "Allez, surfe sur ta mémoire : c'est quelle technique ? 🏄‍♂️",
+    "Hurley Kane te défie ! Tu la connais, celle-là ? 🌴",
+]
 
-elements = h["element"].split()
-payload = {"embeds": [{
-    "title": f"⚡ Hissatsu du jour : {h['names'].get('fr') or h['name']}",
-    "description": h["description"].get("fr") or h["description"].get("en", ""),
-    "color": COLORS.get(elements[0], 0xF1C40F),
-    "image": {"url": h["image"]},
-    "fields": [
-        {"name": "Type", "value": TYPES.get(h["type"], h["type"]), "inline": True},
-        {"name": "Élément", "value": " / ".join(ELEMENTS.get(e, e) for e in elements), "inline": True},
-        {"name": "TP", "value": str(h["tp"] or "?"), "inline": True},
-        {"name": "Utilisé par", "value": ", ".join(h.get("user") or ["?"]), "inline": False},
-    ],
-    "footer": {"text": f"{h['name']} · {h['names'].get('jp', '')} · {h['debut']}"},
-}]}
+data = json.load(urllib.request.urlopen(URL))
+groups = {}
+for h in data:
+    groups.setdefault((h["type"], h["element"]), []).append(h)
+
+# 4 techniques du même type et du même élément ; les groupes trop petits (multi-éléments rares) sont exclus
+pick = random.choice([h for h in data if len(groups[(h["type"], h["element"])]) >= 4])
+answer, *others = random.sample(groups[(pick["type"], pick["element"])], 4)
+choices = random.sample([answer, *others], 4)
+good = choices.index(answer)
+
+payload = {
+    "embeds": [{
+        "title": random.choice(INTROS),
+        "color": COLORS.get(answer["element"].split()[0], 0xF1C40F),
+        "image": {"url": answer["image"]},
+        "footer": {"text": "Clique sur ta réponse, Hurley te dira en privé si t'as bon !"},
+    }],
+    "components": [{"type": 1, "components": [
+        # custom_id = "choix:bonne réponse" → le Worker n'a besoin d'aucun stockage
+        {"type": 2, "style": 1, "label": h["names"].get("fr") or h["name"], "custom_id": f"{i}:{good}"}
+        for i, h in enumerate(choices)
+    ]}],
+}
 
 if "--dry-run" in sys.argv:
     print(json.dumps(payload, ensure_ascii=False, indent=2))
     sys.exit()
 
-req = urllib.request.Request(
-    os.environ["DISCORD_WEBHOOK"],
+urllib.request.urlopen(urllib.request.Request(
+    f"https://discord.com/api/v10/channels/{CHANNEL_ID}/messages",
     data=json.dumps(payload).encode(),
-    headers={"Content-Type": "application/json", "User-Agent": "hissatsu-du-jour"},  # Discord bloque l'UA Python par défaut
-)
-urllib.request.urlopen(req)
+    headers={
+        "Authorization": f"Bot {os.environ['DISCORD_TOKEN']}",
+        "Content-Type": "application/json",
+        "User-Agent": "DiscordBot (hissatsu-du-jour, 1.0)",
+    },
+))
