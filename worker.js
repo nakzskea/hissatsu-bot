@@ -1,5 +1,5 @@
-const WIN = ["Tubular ! 🏄 Bien joué, c'est ça !", "Yeah ! Tu surfes sur la bonne vague, mec ! 🌊", "Parfait ! Même moi j'aurais pas fait mieux 😎"];
-const LOSE = ["Wipeout ! 🌊 C'était", "Aïe, t'es tombé de ta planche… C'était", "Raté, mec ! C'était"];
+const WIN = ["🏄 Bien joué, c'est ça !", "Yeah ! Tu surfes sur la bonne vague, mec ! 🌊", "Parfait ! Même moi j'aurais pas fait mieux 😎"];
+const LOSE = ["Aïe, t'es tombé de ta planche… C'était", "Raté, mec ! C'était"];
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const hex = (s) => Uint8Array.from(s.match(/../g), (b) => parseInt(b, 16));
 const json = (o) => new Response(JSON.stringify(o), { headers: { "Content-Type": "application/json" } });
