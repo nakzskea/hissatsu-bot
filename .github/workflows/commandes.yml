@@ -1,0 +1,12 @@
+name: Enregistrer les commandes
+
+on: workflow_dispatch # à lancer à la main, une seule fois (ou si on ajoute une commande)
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/register_commands.py
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
