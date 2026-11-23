@@ -1,4 +1,5 @@
-import json, os, random, sys, urllib.request
+import json, os, random, sys, urllib.request, urllib.error
+sys.excepthook = lambda t, e, tb: print(e, e.read().decode() if isinstance(e, urllib.error.HTTPError) else "")
 
 URL = "https://raw.githubusercontent.com/nakzskea/hissatsudle/master/public/data/hissatsus.json"
 CHANNEL_ID = "1574561004254400572"
