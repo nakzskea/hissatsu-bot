@@ -10,7 +10,7 @@ Un seul essai, alors réfléchissez bien avant de sauter sur la vague ! 🌊
 ---
 
 Bot Discord qui pose chaque matin un quiz sur les *hissatsu* (super techniques) d'Inazuma Eleven,
-présenté par Hurley Kane. Une image, 4 propositions, un seul essai : Hurley te dit en privé si t'as bon.
+présenté par Hurley Kane. Une image, 4 propositions, un seul essai : Hurley annonce à tout le salon si t'as réussi ou raté, et te glisse la bonne réponse en privé si tu t'es planté.
 
 Les données viennent de [HissatsuDle](https://github.com/nakzskea/hissatsudle) (879 techniques).
 Projet de fan, sans aucun lien avec Level-5.
@@ -21,7 +21,7 @@ Projet de fan, sans aucun lien avec Level-5.
 
 | | |
 |---|---|
-| **Question du jour** | Postée chaque matin dans le salon. 4 boutons, 1 essai par personne, 1 point par bonne réponse |
+| **Question du jour** | Postée chaque matin dans le salon. 4 boutons, 1 essai par personne, 1 point par bonne réponse. Résultat annoncé publiquement, bonne réponse en privé en cas d'erreur |
 | **`/entrainement`** | Une question visible par toi seul, à enchaîner autant que tu veux. Ne compte pas dans le classement |
 | **`/classement`** | Le top 10 des joueurs |
 
@@ -39,7 +39,7 @@ GitHub Actions (cron 8h) ──► API Discord : poste la question avec les bout
                                    ▼
                      Cloudflare Worker ──► Cloudflare KV
                    (vérifie la signature,   (votes, scores)
-                    répond en éphémère)
+                    annonce + réponse privée)
 ```
 
 - `scripts/hissatsu_du_jour.py` : tire la question et la poste (Python, bibliothèque standard uniquement)
