@@ -2,7 +2,7 @@ name: Hissatsu du jour
 
 on:
   schedule:
-    - cron: "0 7 * * *" # 8h à Paris l'hiver, 9h l'été
+    - cron: "2 9 * * *" # 10h02 à Paris l'hiver, 11h02 l'été
   workflow_dispatch:
 
 jobs:
