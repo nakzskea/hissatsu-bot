@@ -2,6 +2,8 @@ const DATA_URL = "https://raw.githubusercontent.com/nakzskea/hissatsudle/master/
 const COLORS = { Fire: 0xe74c3c, Wind: 0x5dade2, Forest: 0x58d68d, Mountain: 0xb9770e, Void: 0x8e44ad };
 const WIN = ["🏄 Bien joué, c'est ça !", "Yeah ! Tu surfes sur la bonne vague, mec ! 🌊", "Parfait ! Même moi j'aurais pas fait mieux 😎"];
 const LOSE = ["Aïe, t'es tombé de ta planche… C'était", "Raté, mec ! C'était"];
+const PUBLIC_WIN = ["🏄 {u} a trouvé ! Trop fort !", "🌊 {u} surfe sur la bonne vague, bien joué !", "😎 {u} a réussi, respect mec !"];
+const PUBLIC_LOSE = ["🌊 {u} s'est pris la vague… raté !", "💦 {u} est tombé de sa planche, perdu !", "🐚 {u} a raté, ce sera pour demain !"];
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const hex = (s) => Uint8Array.from(s.match(/../g), (b) => parseInt(b, 16));
 const json = (o) => new Response(JSON.stringify(o), { headers: { "Content-Type": "application/json" } });
@@ -34,7 +36,7 @@ async function question() {
 }
 
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     // Discord exige qu'on vérifie la signature de chaque requête
     const sig = req.headers.get("X-Signature-Ed25519");
     const ts = req.headers.get("X-Signature-Timestamp");
@@ -76,6 +78,17 @@ export default {
           // les points sont dans les métadonnées pour que /classement les lise en un seul appel
           await env.KV.put(scoreKey, "", { metadata: { name: user.global_name || user.username, points } });
         }
+        // annonce publique (sans la réponse) ; si raté, la bonne réponse arrive juste après en privé
+        // petit délai : Discord doit avoir reçu l'annonce publique avant le message privé
+        if (!win) ctx.waitUntil(new Promise((r) => setTimeout(r, 1000)).then(() => fetch(`https://discord.com/api/v10/webhooks/${i.application_id}/${i.token}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: `${pick(LOSE)} **${answer}** !`, flags: 64 }),
+        })));
+        return json({ type: 4, data: {
+          content: pick(win ? PUBLIC_WIN : PUBLIC_LOSE).replace("{u}", `<@${user.id}>`),
+          allowed_mentions: { users: [user.id] },
+        } });
       }
       return reply(win ? pick(WIN) : `${pick(LOSE)} **${answer}** !`);
     }
