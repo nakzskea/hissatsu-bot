@@ -12,7 +12,7 @@ const INTROS = [
   "Allez, surfe sur ta mémoire : c'est quelle technique ? 🏄‍♂️",
   "Hurley Kane te défie ! Tu la connais, celle-là ? 🌴",
 ];
-const CHANNEL_ID = "1574561004254400572";
+const CHANNEL_ID = "1574561004254400572"; //ID du channel discord dans lequel le bot est. Donnée pas sensible -> channel privé sur un serveur privé pour tester, a mettre en secret si vous voulez 
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const hex = (s) => Uint8Array.from(s.match(/../g), (b) => parseInt(b, 16));
 const json = (o) => new Response(JSON.stringify(o), { headers: { "Content-Type": "application/json" } });
